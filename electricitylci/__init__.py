@@ -84,7 +84,7 @@ def get_generation_process_df(regions=None, **kwargs):
 #        )
     if regions is None:
         regions = config.model_specs.regional_aggregation
-    if regions in ["BA","FERC","US"]:
+    if regions in ["BA","FERC"]:
         generation_process_df = aggregate_gen(
             gen_plus_fuels, subregion="BA"
         )
@@ -137,9 +137,9 @@ def get_generation_mix_process_df(regions=None):
     if regions is None:
         regions = config.model_specs.regional_aggregation
 
-    if config.model_specs.replace_egrid or regions in ["BA","FERC","US"]:
+    if config.model_specs.replace_egrid or regions in ["BA","FERC"]:
         # assert regions == 'BA' or regions == 'NERC', 'Regions must be BA or NERC'
-        if regions in ["BA","FERC","US"] and not config.model_specs.replace_egrid:
+        if regions in ["BA","FERC"] and not config.model_specs.replace_egrid:
             logger.info(
                 f"EIA923 generation data is being used for the generation mix "
                 f"despite replace_egrid = False. The reference eGrid electricity "
@@ -199,7 +199,7 @@ def write_generation_mix_database_to_dict(
     from electricitylci.generation_mix import olcaschema_genmix
     if regions is None:
         regions = config.model_specs.regional_aggregation
-    if regions in ["FERC","US","BA"]:
+    if regions in ["FERC","BA"]:
         genmix_dict = olcaschema_genmix(
                 genmix_database, gen_dict, subregion="BA"
         )
@@ -545,9 +545,16 @@ def get_consumption_mix_df(subregion=None, regions_to_keep=None):
     if subregion is None:
         subregion = config.model_specs.regional_aggregation
 
-    io_trade_df = trade.ba_io_trading_model(
-        year=config.model_specs.eia_gen_year, subregion=subregion, regions_to_keep=regions_to_keep
-    )
+    if subregion == 'US':
+        # set consumption mix equal to generation mix
+        df = pd.DataFrame({'fraction': [1.0],
+                           'export_name':['US']})
+        io_trade_df = {"US":df}
+    else:
+        io_trade_df = trade.ba_io_trading_model(
+            year=config.model_specs.eia_gen_year, subregion=subregion, 
+            regions_to_keep=regions_to_keep
+        )
     return io_trade_df
 
 

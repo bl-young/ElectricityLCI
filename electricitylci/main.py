@@ -41,7 +41,7 @@ def main():
             upstream_df=upstream_df
         )
     print("write gen process to jsonld")
-    if config.model_specs.regional_aggregation in ["FERC","US"]:
+    if config.model_specs.regional_aggregation in ["FERC"]:
         generation_process_dict = electricitylci.write_gen_fuel_database_to_dict(
             generation_process_df, upstream_dict, subregion="BA"
         )
@@ -56,7 +56,7 @@ def main():
     # regions. This is because the consumption mixes are based on imports from
     # balancing authority areas.
     print("get gen mix process")
-    if config.model_specs.regional_aggregation in ["FERC","US"]:
+    if config.model_specs.regional_aggregation in ["FERC"]:
         generation_mix_df = electricitylci.get_generation_mix_process_df("BA")
     else:
         generation_mix_df = electricitylci.get_generation_mix_process_df()
